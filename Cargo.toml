@@ -1,6 +1,8 @@
 [package]
 authors = ["rotemy"]
+description = "Alerting and monitoring framework"
 edition = "2021"
+license = "Apache-2.0"
 name = "klaxon"
 version = "0.1.0"
 
