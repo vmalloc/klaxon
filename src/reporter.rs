@@ -29,7 +29,7 @@ impl PdReporter {
     pub async fn finish(self) -> Result<()> {
         let pd_client = match self.pagerduty_api_key {
             None => {
-                warn!("🌵 DRY RUN, nothing will be sent to PagerDuty");
+                debug!("🌵 DRY RUN, nothing will be sent to PagerDuty");
                 None
             }
             Some(key) => Some(pagerduty_rs::eventsv2async::EventsV2::new(key, None)?),
@@ -45,7 +45,7 @@ impl PdReporter {
         }
 
         for issue in self.to_resolve.into_iter() {
-            warn!("✅ Resolving issue {}: {:?}", issue.dedup_key(), issue);
+            info!("✅ Resolving issue {}: {:?}", issue.dedup_key(), issue);
             let event = pagerduty_rs::types::Event::<PdIssueFields>::AlertResolve(issue.into());
             if let Some(pd_client) = pd_client.as_ref() {
                 tasks.push(pd_client.event(event));
