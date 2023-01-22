@@ -4,6 +4,8 @@ use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
 
+const MAX_SUMMARY_SIZE: usize = 1024;
+
 pub type PdIssueFields = BTreeMap<String, String>;
 
 #[derive(Debug, Serialize)]
@@ -39,7 +41,14 @@ impl From<PdIssue> for pagerduty_rs::types::AlertTrigger<PdIssueFields> {
             dedup_key: Some(src.dedup_key().to_string()),
             payload: pagerduty_rs::types::AlertTriggerPayload {
                 severity: pagerduty_rs::types::Severity::Critical,
-                summary: src.title,
+                summary: if src.title.len() > MAX_SUMMARY_SIZE {
+                    let mut new_title = src.title;
+                    new_title.truncate(MAX_SUMMARY_SIZE - 3);
+                    new_title.push_str("...");
+                    new_title
+                } else {
+                    src.title
+                },
                 source: src.source,
                 component: Some(src.component),
                 custom_details: Some(src.dedup_fields),
